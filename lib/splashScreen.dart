@@ -1,8 +1,7 @@
 import "package:splashscreen/splashscreen.dart";
 import 'package:flutter/material.dart';
-import 'firetester.dart' as fire;
 import 'mapper.dart' as map;
-
+import 'main.dart' as mn;
 
 class Splash extends StatefulWidget {
   @override
@@ -19,7 +18,7 @@ class _SplashState extends State<Splash> {
             fontSize: 20.0),
       ),
       seconds: 6,
-      navigateAfterSeconds: map.MyHomePage(title: "TARGETS",),
+      navigateAfterSeconds: mn.MyApp(),
       image: new Image.asset('assets/loading.gif'),
       backgroundColor: Colors.black,
       styleTextUnderTheLoader: new TextStyle(),
