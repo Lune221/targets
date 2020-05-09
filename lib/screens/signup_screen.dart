@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'user.dart';
 import 'package:flutter/material.dart';
 import 'package:nice_button/nice_button.dart';
-import 'package:flutter_maps/mapper.dart' as map;
-
+import 'package:flutter_maps/page_principale.dart' as pp;
 
 
 
@@ -21,13 +22,61 @@ class _SignupScreenState extends State<SignupScreen> {
   User user;
   
   String _nom, _prenom, _mdp, _message="", _tel;
-  bool _confirm = true;
+  bool _confirm = true, connect;
 
   _setMessage(){
     setState(() {
       _message = (_confirm) ?"" :"Les deux mots de passe ne correspondent pas.";
     });
     
+  }
+
+  _checkInternetConnectivity() async{
+    var result = await Connectivity().checkConnectivity();
+    setState(() {
+      connect = (result == ConnectivityResult.none) ? false: true;
+    });
+  }
+  _showDialog(title, content){
+    showDialog(
+      context:context,
+      builder: (context){
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      }
+    );
+  } 
+  
+  signIn(tel, mdp) async{
+    var data;
+    await Firestore.instance.collection("User")
+    .where("tel", isEqualTo:tel)
+    .where("mdp", isEqualTo:mdp)
+    .getDocuments().then((QuerySnapshot docs){
+      if(docs.documents.isNotEmpty){
+        data = docs.documents[0].data;
+        print(data);
+        user.id = docs.documents[0].documentID;
+        user.nom = data["nom"];
+        user.prenom = data["prenom"];
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+            pp.MyApp(userid: user.id,)), (Route<dynamic> route) => false);
+      }
+      else {
+        print("There is nothing");
+        _showDialog("Connection au serveur impossible", "Veuillez attendre un instant...");
+      }
+    });
   }
 
   @override
@@ -139,6 +188,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       onChanged: (input){
                         setState(() {
                           _tel = input;
+                          _message = input.length != 9? "Entrer un numéro de Téléphone valide.": "";
                         });
                       },
                     ),
@@ -215,12 +265,21 @@ class _SignupScreenState extends State<SignupScreen> {
                       gradientColors: [secondColor, firstColor],
                       onPressed: (){
                         try{
-                          user = new User(_prenom, _nom, _tel, _mdp);
-                          user.addNewUser();
+                          _checkInternetConnectivity();
+                          if(connect){
+                            if(_tel.length!=9){
+                              user = new User(_prenom, _nom, _tel, _mdp);
+                              user.addNewUser().then(
+                                (result){
+                                  if(result)
+                                    signIn(user.tel, user.mdp);
+                                }
+                              );
+                            }
+                          }
+                          else _showDialog("Probléme de connection.", "Verifier votre connection internet!");
                         }catch(e){
                           print(e.message);
-                        }finally{
-                          Navigator.of(context).pushNamed(map.MyHomePage.routeName);
                         }
                       },
                     )

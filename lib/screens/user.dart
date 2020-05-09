@@ -19,8 +19,17 @@ class User {
       "tel": tel,
     };
   }
-  addNewUser() {
-    Firestore.instance.collection("User").add(this.toJson());
+  addNewUser() async{
+    var data = true;
+    await Firestore.instance.collection("User")
+    .where("tel", isEqualTo:tel)
+    .getDocuments().then((QuerySnapshot docs){
+      data = docs.documents.isNotEmpty;
+    });
+    if (!data){
+      await Firestore.instance.collection("User").add(this.toJson());
+    }
+    return data;
   }
   
 }

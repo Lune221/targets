@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import './screens/passWord_recovery.dart';
-
 import './screens/getting_started_screen.dart';
 import './screens/login_screen.dart';
 import './screens/signup_screen.dart';

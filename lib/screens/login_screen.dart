@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:nice_button/nice_button.dart';
 import '../screens/passWord_recovery.dart';
 import 'user.dart';
-import 'package:flutter_maps/mapper.dart' as map;
-
+import 'package:flutter_maps/page_principale.dart' as pp;
+import 'package:flutter_maps/persist.dart';
 var firstColor = Color(0xff5b86e5), secondColor = Color(0xff36d1dc);
 
 class LoginScreen extends StatefulWidget {
@@ -20,18 +20,25 @@ class _LoginScreenState extends State<LoginScreen> {
   String _tel, _mdp, _message = "";
   var data;
   
+  
+
   signIn(tel, mdp) async{
     await Firestore.instance.collection("User")
     .where("tel", isEqualTo:tel)
-    .where("mdp", isEqualTo:mdp)
     .getDocuments().then((QuerySnapshot docs){
       if(docs.documents.isNotEmpty){
-          data = docs.documents[0].data;
+        data = docs.documents[0].data;
+        if(data["mdp"] == mdp){
           print(data);
           user.id = docs.documents[0].documentID;
           user.nom = data["nom"];
           user.prenom = data["prenom"];
-          Navigator.of(context).pushNamed(map.MyHomePage.routeName);
+          Persist p = new Persist();
+          p.setId(user.id);
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+            pp.MyApp(userid: user.id,)), (Route<dynamic> route) => false);
+        }
+        else _showDialog("Probléme d'identifiant.", "Le mot de passe que vous avez entré est incorrect.\nVeuillez vérifier vos informations de connexion!");
       }
       else {
         data = null;
@@ -39,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
         _showDialog("Utilisateur introuvable.", "Veuillez vérifier vos informations de connexion!");
       }
     });
-    return data;
   }
 
   _checkInternetConnectivity() async{
@@ -98,8 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextField(
               style: TextStyle(fontSize: 18, color: Colors.black54),
-              keyboardType: TextInputType.numberWithOptions(
-                  signed: false, decimal: false),
+              keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
@@ -172,7 +177,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 if (connect){
                   user = new User(null, null,_tel , _mdp);
                   signIn(user.tel, user.mdp);
-                  
                 }
                 else{
                   _showDialog("Probléme de connection.", "Verifier votre connection internet!");
