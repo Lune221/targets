@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/getting_started_screen.dart' as gettingStarting;
 
 class Settings extends StatefulWidget {
   static const routeName = '/settings';
@@ -13,11 +17,114 @@ class _Settings extends State<Settings> {
   String prenom;
   String nom;
   String numero;
+  String userId;
   bool autoriser = true;
-
+  bool _connect;
+  var data;
+  setData(ln, fn, num){
+    setState(() {
+      nom = ln;
+      prenom = fn;
+      numero = num;
+    });
+  }
   @override
   void initState() {
     super.initState();
+    //_checkInternetConnectivity();
+    //_connect? _getData():print("PAS DE CONNETION INTERNET");
+    
+    print("Le prenom esttt :::::::::::: $prenom");
+  }
+  _getData() async{
+    await Firestore.instance.collection("User").document(userId).get().then((value){ 
+      data = value.data;
+      if (data.isNotEmpty) {  
+        print("Les donnees recupereees soont ::: $data");
+        setData(
+          data["nom"],
+          data["prenom"],
+          data["numero"]
+        );
+      }else{
+        print("There is nothing*****************************");
+        _showDialog("Connection au serveur impossible",
+            "Vérifier votre conection internet");
+      }
+    });
+  }
+  _checkInternetConnectivity() async {
+    var result = await Connectivity().checkConnectivity();
+    setState(() {
+      _connect = (result == ConnectivityResult.none) ? false : true;
+    });
+  }
+
+  void _saveData() async {
+    Firestore.instance.collection("User").document(userId).updateData({
+      "nom": nom,
+      "prenom": prenom,
+      "tel": numero,
+      //"mdp":
+    }).then((_) {
+      print("successfully Saved!!!!!!!!!!!! No Problemo!");
+    });
+  }
+
+  _logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('userId');
+    prefs.clear();
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+            builder: (context) => gettingStarting.GettingStartedScreen()),
+        (Route<dynamic> route) => false);
+  }
+
+  _getId() async {
+    if(_connect){
+      final prefs = await SharedPreferences.getInstance();
+    userId = prefs.getString("userId");
+    print("The user id is :  $userId");
+    }
+    
+  }
+
+  _logOutDialog(title, content) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("NON"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("OUI"),
+                onPressed: () {
+                  _logOut();
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  _showDialog(title, content) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(content),
+            actions: <Widget>[],
+          );
+        });
   }
 
   @override
@@ -55,7 +162,8 @@ class _Settings extends State<Settings> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                        child: TextField(
+                        child: TextFormField(
+                      
                       decoration:
                           InputDecoration(hintText: "Modifier votre prenom"),
                       onChanged: (String string) {
@@ -63,9 +171,7 @@ class _Settings extends State<Settings> {
                           prenom = string;
                         });
                       },
-                      onSubmitted: (String string) {
-                        prenom = string;
-                      },
+                      initialValue: prenom,
                     )),
                     IconButton(icon: Icon(Icons.create), onPressed: () {})
                   ],
@@ -76,7 +182,7 @@ class _Settings extends State<Settings> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                        child: TextField(
+                        child: TextFormField(
                       decoration:
                           InputDecoration(hintText: "Modifier votre nom"),
                       onChanged: (String string) {
@@ -84,9 +190,7 @@ class _Settings extends State<Settings> {
                           nom = string;
                         });
                       },
-                      onSubmitted: (String string) {
-                        nom = string;
-                      },
+                      initialValue: nom,
                     )),
                     IconButton(icon: Icon(Icons.create), onPressed: () {})
                   ],
@@ -97,7 +201,7 @@ class _Settings extends State<Settings> {
                 child: Row(
                   children: <Widget>[
                     Flexible(
-                        child: TextField(
+                        child: TextFormField(
                       keyboardType: TextInputType.number,
                       decoration:
                           InputDecoration(hintText: "Modifier votre numéro"),
@@ -106,9 +210,7 @@ class _Settings extends State<Settings> {
                           numero = string;
                         });
                       },
-                      onSubmitted: (String string) {
-                        numero = string;
-                      },
+                      initialValue: numero,
                     )),
                     IconButton(icon: Icon(Icons.create), onPressed: () {})
                   ],
@@ -118,10 +220,30 @@ class _Settings extends State<Settings> {
               RaisedButton(
                 elevation: 5.0,
                 padding: EdgeInsets.all(10.0),
-                onPressed: () {},
                 child: new Text("Enregistrer"),
                 textColor: Colors.white,
                 color: Colors.blue,
+                onPressed: () {
+                  // _checkInternetConnectivity();
+                  // _connect
+                  //     ? _saveData()
+                  //     : _showDialog("Accès Internet",
+                  //         "Nous ne pouvons pas accéder au serveur. Veuillez vérifier votre connection internet");
+                },
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              RaisedButton(
+                elevation: 5.0,
+                padding: EdgeInsets.all(10.0),
+                onPressed: () {
+                  _logOutDialog("Confirmation",
+                      "Voulez vous vraiment vous déconnecter ?");
+                },
+                child: new Text("Se Déconnecter."),
+                textColor: Colors.white,
+                color: Colors.red,
               )
             ],
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

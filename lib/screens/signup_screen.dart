@@ -69,8 +69,8 @@ class _SignupScreenState extends State<SignupScreen> {
         user.id = docs.documents[0].documentID;
         user.nom = data["nom"];
         user.prenom = data["prenom"];
-          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-            pp.MyApp(userid: user.id,)), (Route<dynamic> route) => false);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+          pp.MyApp(userid: user.id,)), (Route<dynamic> route) => false);
       }
       else {
         print("There is nothing");
@@ -267,15 +267,13 @@ class _SignupScreenState extends State<SignupScreen> {
                         try{
                           _checkInternetConnectivity();
                           if(connect){
-                            if(_tel.length!=9){
+                            if(_tel.length==9){
                               user = new User(_prenom, _nom, _tel, _mdp);
-                              user.addNewUser().then(
-                                (result){
-                                  if(result)
-                                    signIn(user.tel, user.mdp);
-                                }
-                              );
+                              user.addNewUser();
+                              signIn(user.tel, user.mdp);
+                              
                             }
+                            else _showDialog("Numéro de téléphone", "Vérifier votre numéro de téléphone");
                           }
                           else _showDialog("Probléme de connection.", "Verifier votre connection internet!");
                         }catch(e){

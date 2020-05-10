@@ -6,6 +6,7 @@ import '../screens/passWord_recovery.dart';
 import 'user.dart';
 import 'package:flutter_maps/page_principale.dart' as pp;
 import 'package:flutter_maps/persist.dart';
+
 var firstColor = Color(0xff5b86e5), secondColor = Color(0xff36d1dc);
 
 class LoginScreen extends StatefulWidget {
