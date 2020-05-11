@@ -3,61 +3,54 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/getting_started_screen.dart' as gettingStarting;
+import 'main.dart' as mainer;
 
 class Settings extends StatefulWidget {
+  Settings({Key key, @required this.prenom}) : super(key:key);
+  final prenom;
+
   static const routeName = '/settings';
   @override
   _Settings createState() {
-    return new _Settings();
+    return new _Settings(prenom);
   }
 }
 
 class _Settings extends State<Settings> {
+  _Settings( this.prenom);
   String prenom;
   String nom;
   String numero;
   String userId;
   bool autoriser = true;
-  bool _connect;
+  bool _connect=false;
   var data;
-  setData(ln, fn, num){
-    setState(() {
-      nom = ln;
-      prenom = fn;
-      numero = num;
-    });
-  }
+
   @override
   void initState() {
     super.initState();
-    //_checkInternetConnectivity();
-    //_connect? _getData():print("PAS DE CONNETION INTERNET");
-    
-    print("Le prenom esttt :::::::::::: $prenom");
+    execute();
+    print("Létat de la connexion est :::::::::: $_connect");
+    print("Le prenom esttt :::::::::::: $nom");
   }
   _getData() async{
     await Firestore.instance.collection("User").document(userId).get().then((value){ 
       data = value.data;
       if (data.isNotEmpty) {  
         print("Les donnees recupereees soont ::: $data");
-        setData(
-          data["nom"],
-          data["prenom"],
-          data["numero"]
-        );
+        nom = data["nom"];
+        prenom = data["prenom"];
+        numero = data["numero"];
+        return data;
       }else{
         print("There is nothing*****************************");
-        _showDialog("Connection au serveur impossible",
-            "Vérifier votre conection internet");
+        _showDialog("Connection au serveur impossible","Vérifier votre conection internet");
       }
     });
   }
   _checkInternetConnectivity() async {
     var result = await Connectivity().checkConnectivity();
-    setState(() {
-      _connect = (result == ConnectivityResult.none) ? false : true;
-    });
+    _connect = (result == ConnectivityResult.none) ? false : true;
   }
 
   void _saveData() async {
@@ -68,6 +61,7 @@ class _Settings extends State<Settings> {
       //"mdp":
     }).then((_) {
       print("successfully Saved!!!!!!!!!!!! No Problemo!");
+      _showDialog("Sauvegarde compléte!", "Vos données ont été mises à jour!\nNouvelles données : \nPrénom : $prenom\nNom : $nom\nNuméro : $numero");
     });
   }
 
@@ -77,17 +71,19 @@ class _Settings extends State<Settings> {
     prefs.clear();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-            builder: (context) => gettingStarting.GettingStartedScreen()),
+            builder: (context) => mainer.MyApp()),
         (Route<dynamic> route) => false);
   }
 
   _getId() async {
-    if(_connect){
-      final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     userId = prefs.getString("userId");
-    print("The user id is :  $userId");
-    }
-    
+    print("The user id is :  $userId");    
+  }
+  void execute() async{
+    await _checkInternetConnectivity();
+    await _getId();
+    await _getData();
   }
 
   _logOutDialog(title, content) {
@@ -163,7 +159,6 @@ class _Settings extends State<Settings> {
                   children: <Widget>[
                     Flexible(
                         child: TextFormField(
-                      
                       decoration:
                           InputDecoration(hintText: "Modifier votre prenom"),
                       onChanged: (String string) {
@@ -224,11 +219,11 @@ class _Settings extends State<Settings> {
                 textColor: Colors.white,
                 color: Colors.blue,
                 onPressed: () {
-                  // _checkInternetConnectivity();
-                  // _connect
-                  //     ? _saveData()
-                  //     : _showDialog("Accès Internet",
-                  //         "Nous ne pouvons pas accéder au serveur. Veuillez vérifier votre connection internet");
+                  _checkInternetConnectivity();
+                  _connect
+                      ? _saveData()
+                      : _showDialog("Accès Internet",
+                          "Nous ne pouvons pas accéder au serveur. Veuillez vérifier votre connection internet");
                 },
               ),
               SizedBox(

@@ -1,10 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
-import 'package:flutter_maps/persist.dart';
 import 'package:image_auto_slider/image_auto_slider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
 import 'mapper.dart' as map;
 
@@ -80,60 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Text("Share"),
     )
   ];
-//For the settings
-//Get the datas
-  bool _connect = false;
-  String prenom;
-  String nom;
-  String numero;
-  String userId;
-  var data;
-  setData(ln, fn, num){
-    setState(() {
-      nom = ln;
-      prenom = fn;
-      numero = num;
-    });
-  }
-  @override
-  void initState() {
-    super.initState();
-    _checkInternetConnectivity();
-    _getId();
-    _connect? _getData():print("PAS DE CONNETION INTERNET");
-    
-    print("Le prenom esttt :::::::::::: $prenom");
-  }
-  _getData() async{
-    _checkInternetConnectivity();
-    await Firestore.instance.collection("User").document(userId).get().then((value){ 
-      data = value.data;
-      if (data.isNotEmpty) {  
-        print("Les donnees recupereees soont ::: $data");
-        setData(
-          data["nom"],
-          data["prenom"],
-          data["numero"]
-        );
-      }else{
-        print("There is nothing*****************************");
-      }
-    });
-  }
-  _checkInternetConnectivity() async {
-    var result = await Connectivity().checkConnectivity();
-    setState(() {
-      _connect = (result == ConnectivityResult.none) ? false : true;
-    });
-  }
 
-  _getId() async {
-      final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getString("userId");
-    print("The user id is :  $userId");    
-  }
-
-//End of prep settings
   @override
   Widget build(BuildContext context) {
     return Scaffold(
