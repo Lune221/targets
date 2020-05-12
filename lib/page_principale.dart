@@ -3,7 +3,7 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:image_auto_slider/image_auto_slider.dart';
 import 'settings.dart';
 import 'mapper.dart' as map;
-
+import 'package:url_launcher/url_launcher.dart';
 
 class MyApp extends StatelessWidget {
   static const routeName = '/homePage';
@@ -17,15 +17,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Target',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Target'),
@@ -40,6 +31,17 @@ class MyHomePage extends StatefulWidget {
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
+}
+
+Widget _buildTile(Widget child, {Function() onTap}) {
+  return Material(
+      elevation: 14.0,
+      borderRadius: BorderRadius.circular(12.0),
+      shadowColor: Color(0x802196F3),
+      child: InkWell(
+          // Do onTap() if it isn't null, otherwise do something
+          onTap: onTap != null ? () => onTap() : () {},
+          child: child));
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -63,7 +65,75 @@ class _MyHomePageState extends State<MyHomePage> {
               slideMilliseconds: 700,
               durationSecond: 5,
               boxFit: BoxFit.scaleDown,
-            )
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                //
+
+                SizedBox(
+                  height: 15,
+                ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _buildTile(
+                      Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Material(
+                                  color: Colors.teal,
+                                  shape: CircleBorder(),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Icon(Icons.healing,
+                                        color: Colors.white, size: 30.0),
+                                  )),
+                              Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                              Text('Auto-Diagnostique',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 24.0)),
+                              Text('Faites des tests vous même',
+                                  style: TextStyle(color: Colors.black45)),
+                            ]),
+                      ),
+                    ),
+                    _buildTile(
+                        Padding(
+                          padding: EdgeInsets.all(24.0),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Material(
+                                    color: Colors.amber,
+                                    shape: CircleBorder(),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(16.0),
+                                      child: Icon(Icons.notifications,
+                                          color: Colors.white, size: 30.0),
+                                    )),
+                                Padding(padding: EdgeInsets.only(bottom: 16.0)),
+                                Text('Alerts',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 24.0)),
+                                Text('Nous prévenir ',
+                                    style: TextStyle(color: Colors.black45)),
+                              ]),
+                        ),
+                        onTap: () => launch("tel://+221339520837")),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -76,7 +146,6 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Text("Share"),
     )
   ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,13 +187,28 @@ class _MyHomePageState extends State<MyHomePage> {
             _currentIndex = index;
           }),
           items: <BottomNavyBarItem>[
-            BottomNavyBarItem(title: Text('home'), icon: Icon(Icons.home)),
             BottomNavyBarItem(
-                title: Text('stats'), icon: Icon(Icons.assessment)),
+                title: Text('Accueil'),
+                icon: Icon(
+                  Icons.home,
+                  size: 27,
+                )),
             BottomNavyBarItem(
-                title: Text('profil'), icon: Icon(Icons.account_circle)),
+              title: Text('stats'),
+              icon: Icon(
+                Icons.assessment,
+                size: 27,
+              ),
+            ),
             BottomNavyBarItem(
-                title: Text('share'), icon: Icon(Icons.group_add)),
+                title: Text('profil'),
+                icon: Icon(Icons.account_circle, size: 27)),
+            BottomNavyBarItem(
+                title: Text('inviter'),
+                icon: Icon(
+                  Icons.group_add,
+                  size: 27,
+                )),
           ],
         ));
   }

@@ -6,18 +6,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart' as mainer;
 
 class Settings extends StatefulWidget {
-  Settings({Key key, @required this.prenom}) : super(key:key);
-  final prenom;
-
   static const routeName = '/settings';
   @override
   _Settings createState() {
-    return new _Settings(prenom);
+    return new _Settings();
   }
 }
 
 class _Settings extends State<Settings> {
-  _Settings( this.prenom);
   String prenom;
   String nom;
   String numero;
