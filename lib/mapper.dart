@@ -4,29 +4,28 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'sendLoc.dart';
 
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title, this.userId}) : super(key: key);
   final String title;
+  final String userId;
 
   static const routeName = '/map';
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomePageState createState() => _MyHomePageState(userId: userId);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  _MyHomePageState({this.userId});
+  final String userId;
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
   Marker marker;
   Circle circle;
-  GoogleMapController _controller;
-  final FirebaseDatabase _database = FirebaseDatabase.instance;
-  
-
+  GoogleMapController _controller;  
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -57,9 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
           strokeColor: Colors.blue,
           center: latlng,
           fillColor: Colors.blue.withAlpha(70));
-      Position current = new Position(latlng);
+      Position current = new Position(latlng, userId);
       createRecord(current);
-      // current.addNewTodo(_database);
     });
   }
 
@@ -106,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.userId),
       ),
       body: GoogleMap(
         mapType: MapType.hybrid,

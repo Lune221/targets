@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
+import 'package:flutter_maps/persist.dart';
 import 'user.dart';
 import 'package:flutter/material.dart';
 import 'package:nice_button/nice_button.dart';
@@ -69,12 +70,14 @@ class _SignupScreenState extends State<SignupScreen> {
         user.id = docs.documents[0].documentID;
         user.nom = data["nom"];
         user.prenom = data["prenom"];
+        Persist p = new Persist();
+        p.setId(user.id);
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
           pp.MyApp(userid: user.id,)), (Route<dynamic> route) => false);
       }
       else {
         print("There is nothing");
-        _showDialog("Connection au serveur impossible", "Veuillez attendre un instant...");
+        _showDialog("Connexion au serveur impossible", "Veuillez attendre un instant...");
       }
     });
   }

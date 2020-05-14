@@ -2,10 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_maps/getData.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart' as mainer;
 
 class Settings extends StatefulWidget {
+  Settings({Key key, this.userId}) : super(key: key);
+
+  final String userId;
   static const routeName = '/settings';
   @override
   _Settings createState() {
@@ -14,43 +18,39 @@ class Settings extends StatefulWidget {
 }
 
 class _Settings extends State<Settings> {
+  _Settings({this.userId});
+
   String prenom;
   String nom;
   String numero;
-  String userId;
+  final String userId;
   bool autoriser = true;
   bool _connect=false;
-  var data;
-
+  Map<String,String> values;
   @override
   void initState() {
     super.initState();
-    execute();
-    print("Létat de la connexion est :::::::::: $_connect");
-    print("Le prenom esttt :::::::::::: $nom");
+    Data data = Data();
+    // values = data.getData(userId);
+    // if(values!=null){
+    //   print(values);
+    //   prenom = values["prenom"];
+    //   nom = values["nom"];
+    //   numero = values["tel"];
+    // }
+    // else
+    //   print("Values est videeeeeeeeee!!!!");
+
+    _checkInternetConnectivity();
   }
-  _getData() async{
-    await Firestore.instance.collection("User").document(userId).get().then((value){ 
-      data = value.data;
-      if (data.isNotEmpty) {  
-        print("Les donnees recupereees soont ::: $data");
-        nom = data["nom"];
-        prenom = data["prenom"];
-        numero = data["numero"];
-        return data;
-      }else{
-        print("There is nothing*****************************");
-        _showDialog("Connection au serveur impossible","Vérifier votre conection internet");
-      }
-    });
-  }
+
   _checkInternetConnectivity() async {
     var result = await Connectivity().checkConnectivity();
     _connect = (result == ConnectivityResult.none) ? false : true;
   }
 
   void _saveData() async {
-    Firestore.instance.collection("User").document(userId).updateData({
+    await Firestore.instance.collection("User").document(userId).updateData({
       "nom": nom,
       "prenom": prenom,
       "tel": numero,
@@ -71,16 +71,6 @@ class _Settings extends State<Settings> {
         (Route<dynamic> route) => false);
   }
 
-  _getId() async {
-    final prefs = await SharedPreferences.getInstance();
-    userId = prefs.getString("userId");
-    print("The user id is :  $userId");    
-  }
-  void execute() async{
-    await _checkInternetConnectivity();
-    await _getId();
-    await _getData();
-  }
 
   _logOutDialog(title, content) {
     showDialog(

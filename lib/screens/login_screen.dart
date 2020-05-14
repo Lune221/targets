@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onPressed: () {
                   _checkInternetConnectivity();
-                  if (connect && _tel.length>0 && _mdp.length>0) {
+                  if (connect && _tel.length > 0 && _mdp.length > 0) {
                     user = new User(null, null, _tel, _mdp);
                     signIn(user.tel, user.mdp);
                   } else {

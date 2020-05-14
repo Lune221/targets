@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:nice_button/nice_button.dart';
 import '../widgets/slide_item.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
-import 'package:page_transition/page_transition.dart';
 import '../model/slide.dart';
 import '../widgets/slide_dots.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
+import 'createRoute.dart';
 
 var firstColor = Color(0xff5b86e5), secondColor = Color(0xff36d1dc);
+
 
 class GettingStartedScreen extends StatefulWidget {
   @override
@@ -129,12 +130,7 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                         textColor: Colors.white,
                       ),
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.rightToLeft,
-                                duration: Duration(seconds: 1),
-                                child: SignupScreen()));
+                        Navigator.of(context).push(createRoute(SignupScreen()));
                       },
                     ),
                     Row(
@@ -155,12 +151,7 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                                     .setSp(30, allowFontScalingSelf: true)),
                           ),
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                PageTransition(
-                                    type: PageTransitionType.upToDown,
-                                    duration: Duration(seconds: 1),
-                                    child: LoginScreen()));
+                            Navigator.of(context).push(createRoute(LoginScreen()));
                           },
                         ),
                       ],
