@@ -4,6 +4,7 @@ import 'package:image_auto_slider/image_auto_slider.dart';
 import 'settings.dart';
 import 'mapper.dart' as map;
 import 'package:url_launcher/url_launcher.dart';
+import './AutoDiag/intro.dart';
 
 class MyApp extends StatelessWidget {
   static const routeName = '/homePage';
@@ -33,7 +34,6 @@ class MyHomePage extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState(userId: userId);
 }
-
 Widget _buildTile(Widget child, {Function() onTap}) {
   return Material(
       elevation: 14.0,
@@ -50,25 +50,30 @@ class _MyHomePageState extends State<MyHomePage> {
   String userId;
   int _currentIndex = 0;
 
-  final bodies = [
+  
+  @override
+  Widget build(BuildContext context) {
+    final bodies = [
     Center(
       child: new Container(
         margin: EdgeInsets.all(10.0),
-        child: Column(
+        child: 
+        Column(
           children: <Widget>[
             ImageAutoSlider(
               assetImages: [
-                AssetImage('img/img11.png'),
+                AssetImage('img/img11.jpg'),
                 AssetImage('img/img2.png'),
                 AssetImage('img/img3.png'),
-                AssetImage('img/img4.png'),
-                AssetImage('img/img5.png'),
-                AssetImage('img/img6.png'),
+                AssetImage('img/img4.jpg'),
+                AssetImage('img/img5.jpg'),
+                AssetImage('img/img6.jpg'),
               ],
               slideMilliseconds: 700,
               durationSecond: 5,
               boxFit: BoxFit.scaleDown,
             ),
+            
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
@@ -106,6 +111,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: TextStyle(color: Colors.black45)),
                             ]),
                       ),
+                      onTap: () =>Navigator.of(context).push(MaterialPageRoute(builder: (_) => DiagnosticIntro())),
+
                     ),
                     _buildTile(
                         Padding(
@@ -149,8 +156,6 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Text("Share"),
     )
   ];
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
