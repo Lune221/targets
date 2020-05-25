@@ -5,7 +5,7 @@ import 'settings.dart';
 import 'mapper.dart' as map;
 import 'package:url_launcher/url_launcher.dart';
 import './AutoDiag/intro.dart';
-
+import 'widgets/stats.dart';
 class MyApp extends StatelessWidget {
   static const routeName = '/homePage';
   final String userid;
@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
   final String userId;
-
+  
   @override
   _MyHomePageState createState() => _MyHomePageState(userId: userId);
 }
@@ -49,10 +49,50 @@ class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState({this.userId});
   String userId;
   int _currentIndex = 0;
+  Future<Stat> futureStat;
 
-  
+  @override
+  void initState() {
+    super.initState();
+    futureStat = fetchStat();
+  }
+
   @override
   Widget build(BuildContext context) {
+
+    Widget statBuilder = FutureBuilder<Stat>(
+      future: futureStat,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          var data = snapshot.data;
+          List<Widget> itemsList = getStatList(data);
+          itemsList.insert(0, 
+            Material(
+              color: Colors.teal,
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Image.network("${data.flag}", height: 150, width: 15,),
+              )));
+          itemsList.insert(1, Padding(padding: EdgeInsets.only(bottom: 16.0)));
+          return Container(
+            child :Padding(
+              padding: EdgeInsets.all(0.0),
+              child: ListView(
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  children: 
+                    itemsList
+                  ),
+            ),
+          ); //We will Place hier the widget!!
+        } else if (snapshot.hasError) {
+          return Text("${snapshot.error}");
+        }
+        // By default, show a loading spinner.
+        return CircularProgressIndicator();
+      },
+    );
+
     final bodies = [
     Center(
       child: new Container(
@@ -149,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     ),
     Center(
-      child: Text("Stats"),
+      child: statBuilder, //Là où vont se trouver les stats..........
     ),
     Center(),
     Center(

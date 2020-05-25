@@ -88,25 +88,25 @@ class _GettingStartedScreenState extends State<GettingStartedScreen> {
                         itemCount: slideList.length,
                         itemBuilder: (ctx, i) => SlideItem(i),
                       ),
-                      Stack(
-                        alignment: AlignmentDirectional.topStart,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsetsResponsive.only(bottom: 35),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                for (int i = 0; i < slideList.length; i++)
-                                  if (i == _currentPage)
-                                    SlideDots(true)
-                                  else
-                                    SlideDots(false)
-                              ],
-                            ),
-                          )
-                        ],
-                      )
+                      // Stack(
+                      //   alignment: AlignmentDirectional.topStart,
+                      //   children: <Widget>[
+                      //     Container(
+                      //       margin: EdgeInsetsResponsive.only(bottom: 35),
+                      //       child: Row(
+                      //         mainAxisSize: MainAxisSize.min,
+                      //         mainAxisAlignment: MainAxisAlignment.center,
+                      //         children: <Widget>[
+                      //           for (int i = 0; i < slideList.length; i++)
+                      //             if (i == _currentPage)
+                      //               SlideDots(true)
+                      //             else
+                      //               SlideDots(false)
+                      //         ],
+                      //       ),
+                      //     )
+                      //   ],
+                      // )
                     ],
                   ),
                 ),

@@ -89,6 +89,7 @@ class _Settings extends State<Settings> {
               FlatButton(
                 child: Text("OUI"),
                 onPressed: () {
+                  Navigator.of(context).pop();
                   _logOut();
                 },
               )

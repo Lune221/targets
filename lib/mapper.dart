@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
               position: latlng,
               rotation: null,
               draggable: false,
-              zIndex: 1,//i.toDouble(),
+              zIndex: i.toDouble(),
               flat: true,
               anchor: Offset(0.5, 0.5),
               icon: BitmapDescriptor.fromBytes(point));
