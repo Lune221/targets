@@ -59,21 +59,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
+    Widget button = RaisedButton(
+      elevation: 5.0,
+      padding: EdgeInsets.all(10.0),
+      child: new Text("Actualiser les données"),
+      textColor: Colors.white,
+      color: Colors.blue,
+      onPressed: () {
+        setState(() {
+          futureStat = fetchStat();
+          _currentIndex = 0;
+        });
+      }, //Boutton pour rafraichir la page
+    );
     Widget statBuilder = FutureBuilder<Stat>(
       future: futureStat,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           var data = snapshot.data;
           List<Widget> itemsList = getStatList(data);
-          itemsList.insert(0, 
+
+          itemsList.insert(0, //On insére Le drapeau
             Material(
               color: Colors.teal,
               child: Padding(
                 padding: EdgeInsets.all(10.0),
                 child: Image.network("${data.flag}", height: 150, width: 15,),
               )));
-          itemsList.insert(1, Padding(padding: EdgeInsets.only(bottom: 16.0)));
+
+          itemsList.insert(1, Padding(padding: EdgeInsets.only(bottom: 16.0)));//On insére un petit padding avant les Stats
+          itemsList.add(button);
           return Container(
             child :Padding(
               padding: EdgeInsets.all(0.0),

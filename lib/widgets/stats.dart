@@ -1,28 +1,31 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cloud_functions/cloud_functions.dart';
+import 'package:intl/intl.dart';
 
-var date;
+
+getRealDate(millisec){
+  DateTime date = new DateTime.fromMillisecondsSinceEpoch(millisec);
+  var format = new DateFormat("yMd");
+  var dateString = format.add_Hms().format(date);
+  return dateString;
+}
 
 Future<Stat> fetchStat() async {
-  final response = await http.get('https://corona.lmao.ninja/v2/countries/Senegal?yesterday&strict&query%20');
-  final HttpsCallable getDate = CloudFunctions.instance
-        .getHttpsCallable(functionName: 'sendRealDate')
-          ..timeout = const Duration(seconds: 30);
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON. 
-    await getDate.call({
-      "millisec:" : json.decode(response.body)["updated"]
-      }).then((value) { date = value;});
-    print("Les donnees sont ::: **** ${json.decode(response.body)}"); 
-    return Stat.fromJson(json.decode(response.body));
+  try{
+    final response = await http.Client().get('https://corona.lmao.ninja/v2/countries/Senegal?yesterday&strict&query%20');
     
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load Stat');
+    if (response.statusCode == 200) {
+      // If the server did return a 200 OK response,
+      // then parse the JSON.    
+      return Stat.fromJson(json.decode(response.body));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to load Stat');
+    }
+  }catch(e){
+    return null;
   }
 }
 
@@ -75,7 +78,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -96,7 +99,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -117,7 +120,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -138,7 +141,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -159,7 +162,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -180,7 +183,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -201,7 +204,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -222,7 +225,7 @@ List<Widget> getStatList(Stat data){
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 18.0)
                 ),
               ],
             )
@@ -239,11 +242,11 @@ List<Widget> getStatList(Stat data){
             Icon(Icons.date_range, color: Colors.yellow,),
             Column(
               children: <Widget>[
-                Text('Dernière mise à jour : $date',
+                Text('Dernière mise à jour : ${getRealDate(data.updated)}',
                   style: TextStyle(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.w700,
-                    fontSize: 20.0)
+                    fontSize: 15.0)
                 ),
               ],
             )
