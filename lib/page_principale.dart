@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(context,
                       new MaterialPageRoute(builder: (BuildContext context) {
-                    return new Settings();
+                    return new Settings(userId: userId,);
                   }));
                 })
           ],

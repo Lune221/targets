@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final HttpsCallable getPos = CloudFunctions.instance
         .getHttpsCallable(functionName: 'sendPos')
           ..timeout = const Duration(seconds: 30);
-      List positions = await getPos.call(<String, dynamic>{
+      await getPos.call(<String, dynamic>{
         "lat": lat,
         "long": long,
         "interval": interval

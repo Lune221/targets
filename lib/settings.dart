@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_maps/getData.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart' as mainer;
+import 'package:cloud_functions/cloud_functions.dart';
+
 
 class Settings extends StatefulWidget {
   Settings({Key key, this.userId}) : super(key: key);
@@ -13,7 +14,7 @@ class Settings extends StatefulWidget {
   static const routeName = '/settings';
   @override
   _Settings createState() {
-    return new _Settings();
+    return _Settings(userId: userId);
   }
 }
 
@@ -30,18 +31,29 @@ class _Settings extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    Data data = Data();
-    // values = data.getData(userId);
-    // if(values!=null){
-    //   print(values);
-    //   prenom = values["prenom"];
-    //   nom = values["nom"];
-    //   numero = values["tel"];
-    // }
-    // else
-    //   print("Values est videeeeeeeeee!!!!");
-
     _checkInternetConnectivity();
+  }
+
+  void changeAuth() async {
+    await _checkInternetConnectivity();
+    if(_connect){
+      final HttpsCallable changeState = CloudFunctions.instance
+        .getHttpsCallable(functionName: 'changeStateFromId')
+          ..timeout = const Duration(seconds: 30);
+      await changeState.call({
+        "userId" : userId,
+        "etat": true,
+      }).then((value) {
+        var data = value.data;
+        print("Les doonnees recueeees sont ::::::: $data");
+        data == true? _showDialog("Succés!", "Les données ont bien été autorisées à la lecture!"):_showDialog("Erreur", "Une erreur est survenue lors de la mise à jour.\Vérifiez votre connexion internet.");
+      });
+    }
+    else{
+      _showDialog("Probleme de connexion.", "Veillez vérifier que vous avez bien accés à Internet avant de recommencer!;");
+    }
+      
+    
   }
 
   _checkInternetConnectivity() async {
@@ -122,24 +134,28 @@ class _Settings extends State<Settings> {
         ),
         body: new Center(
             child: Container(
-          padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-          child: Column(
+          padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 30, right: 30),
+          child: ListView(
             children: <Widget>[
+              
               new Card(
-                child: new Row(
+                borderOnForeground: true,
+                shadowColor: Colors.blue,
+                child: new Column(
                   children: <Widget>[
-                    Text("Autoriser l'accès aux données"),
-                    Switch(
-                        value: autoriser,
-                        onChanged: (value) {
-                          autoriser = !autoriser;
-                          setState(() {
-                            value = autoriser;
-                          });
-                        })
+                    Padding(padding: EdgeInsets.all(10)),
+                    Text("Modifier vos données personnelles.",
+                      style: TextStyle(
+                        fontSize : 20
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(10)),
                   ],
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               new Card(
                 child: Row(
@@ -199,16 +215,33 @@ class _Settings extends State<Settings> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 ),
               ),
+              // RaisedButton(
+              //   elevation: 5.0,
+              //   padding: EdgeInsets.all(10.0),
+              //   child: new Text("Enregistrer"),
+              //   textColor: Colors.white,
+              //   color: Colors.blue,
+              //   onPressed: () {
+              //     _checkInternetConnectivity();
+              //     _connect
+              //         ? _saveData()
+              //         : _showDialog("Accès Internet",
+              //             "Nous ne pouvons pas accéder au serveur. Veuillez vérifier votre connection internet");
+              //   },
+              // ),
+              SizedBox(
+                height: 20,
+              ),
               RaisedButton(
                 elevation: 5.0,
                 padding: EdgeInsets.all(10.0),
-                child: new Text("Enregistrer"),
+                child: new Text("Autoriser l'accès aux données"),
                 textColor: Colors.white,
-                color: Colors.blue,
+                color: Colors.green,
                 onPressed: () {
                   _checkInternetConnectivity();
                   _connect
-                      ? _saveData()
+                      ? changeAuth()
                       : _showDialog("Accès Internet",
                           "Nous ne pouvons pas accéder au serveur. Veuillez vérifier votre connection internet");
                 },
@@ -228,8 +261,8 @@ class _Settings extends State<Settings> {
                 color: Colors.red,
               )
             ],
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            // crossAxisAlignment: CrossAxisAlignment.center,
           ),
         )));
   }
